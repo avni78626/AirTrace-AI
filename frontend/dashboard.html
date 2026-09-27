@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | AirTrace AI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        🌍 AirTrace AI
+    </div>
+
+    <nav>
+
+        <a href="index.html">Home</a>
+
+        <a href="dashboard.html">Dashboard</a>
+
+        <a href="map.html">Risk Map</a>
+
+        <a href="report.html">Report</a>
+
+    </nav>
+
+</header>
+
+
+
+<main class="dashboard">
+
+
+    <!-- PAGE HEADING -->
+
+    <section class="dashboard-heading">
+
+        <div>
+
+            <p class="tagline">
+                CLIMATE MONITORING
+            </p>
+
+            <h1>
+                Climate Dashboard
+            </h1>
+
+            <p>
+                Current environmental conditions and
+                predicted climate risks.
+            </p>
+
+        </div>
+
+
+        <div class="location">
+
+            📍 Kathua
+
+        </div>
+
+    </section>
+
+
+
+    <!-- CURRENT CONDITIONS -->
+
+    <section class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <p>Temperature</p>
+
+            <h2 id="temperature">
+                34.5°C
+            </h2>
+
+            <span>
+                Current temperature
+            </span>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <p>Humidity</p>
+
+            <h2 id="humidity">
+                48%
+            </h2>
+
+            <span>
+                Current humidity
+            </span>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <p>Pollution</p>
+
+            <h2 id="pollution">
+                72
+            </h2>
+
+            <span>
+                AQI
+            </span>
+
+        </div>
+
+
+
+        <div class="stat-card risk-card">
+
+            <p>Overall Risk</p>
+
+            <h2 id="risk">
+                HIGH
+            </h2>
+
+            <span>
+                Current risk level
+            </span>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- PREDICTION -->
+
+    <section class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Climate Risk Prediction
+                </h2>
+
+                <p>
+                    Predicted risk level for upcoming days.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-container">
+
+            <canvas id="predictionChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- TEMPERATURE -->
+
+    <section class="dashboard-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Temperature Trend
+                </h2>
+
+                <p>
+                    Temperature variation over time.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-container">
+
+            <canvas id="temperatureChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- AI ANALYSIS -->
+
+    <section class="ai-section">
+
+
+        <div>
+
+            <p class="tagline">
+                ARTIFICIAL INTELLIGENCE
+            </p>
+
+            <h2>
+                🤖 AI Climate Analysis
+            </h2>
+
+            <p id="analysis">
+
+                High temperature conditions are being
+                observed in the selected region.
+                Continued monitoring is recommended.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="recommendation-box">
+
+            <h3>
+                Recommendations
+            </h3>
+
+
+            <ul id="recommendations">
+
+                <li>
+                    Monitor temperature levels regularly.
+                </li>
+
+                <li>
+                    Stay hydrated during periods of high heat.
+                </li>
+
+                <li>
+                    Monitor vulnerable and high-risk areas.
+                </li>
+
+            </ul>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ACTION BUTTONS -->
+
+    <section class="dashboard-actions">
+
+        <a href="map.html" class="primary-btn">
+            🗺️ View Risk Map
+        </a>
+
+        <a href="report.html" class="secondary-btn">
+            🚨 Report an Issue
+        </a>
+
+    </section>
+
+
+</main>
+
+
+
+<footer>
+
+    <p>
+        © 2026 AirTrace AI | Climate Intelligence Platform
+    </p>
+
+</footer>
+
+
+
+<!-- CHART.JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="js/dashboard.js"></script>
+
+
+</body>
+
+</html>

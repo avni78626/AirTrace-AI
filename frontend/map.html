@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Risk Map | AirTrace AI</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Leaflet CSS -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        🌍 AirTrace AI
+    </div>
+
+    <nav>
+
+        <a href="index.html">Home</a>
+
+        <a href="dashboard.html">Dashboard</a>
+
+        <a href="map.html">Risk Map</a>
+
+        <a href="report.html">Report</a>
+
+    </nav>
+
+</header>
+
+
+
+<main class="map-page">
+
+
+    <!-- MAP HEADING -->
+
+    <section class="map-heading">
+
+        <div>
+
+            <p class="tagline">
+                CLIMATE RISK VISUALIZATION
+            </p>
+
+            <h1>
+                Climate Risk Map
+            </h1>
+
+            <p>
+                Explore climate risk zones and affected regions.
+            </p>
+
+        </div>
+
+
+        <div class="map-location">
+
+            📍 Kathua, Jammu & Kashmir
+
+        </div>
+
+    </section>
+
+
+
+    <!-- MAP -->
+
+    <section class="map-container">
+
+        <div id="map"></div>
+
+    </section>
+
+
+
+    <!-- MAP LEGEND -->
+
+    <section class="map-legend">
+
+        <h3>
+            Risk Level
+        </h3>
+
+
+        <div class="legend-items">
+
+            <div class="legend-item">
+
+                <span class="legend-color high"></span>
+
+                High Risk
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-color medium"></span>
+
+                Medium Risk
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-color low"></span>
+
+                Low Risk
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- INDICATORS -->
+
+    <section class="map-indicators">
+
+
+        <h2>
+            Climate Indicators
+        </h2>
+
+
+        <div class="indicator-grid">
+
+
+            <div class="indicator-card">
+
+                <span>🌡️</span>
+
+                <div>
+
+                    <h3>Temperature</h3>
+
+                    <p>34.5°C</p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="indicator-card">
+
+                <span>💨</span>
+
+                <div>
+
+                    <h3>Pollution</h3>
+
+                    <p>AQI 72</p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="indicator-card">
+
+                <span>🌧️</span>
+
+                <div>
+
+                    <h3>Rainfall</h3>
+
+                    <p>12 mm</p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="indicator-card">
+
+                <span>⚠️</span>
+
+                <div>
+
+                    <h3>Risk Score</h3>
+
+                    <p>72 / 100</p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ACTION -->
+
+    <section class="map-action">
+
+        <h2>
+            See something unusual?
+        </h2>
+
+        <p>
+            Help improve climate monitoring by reporting
+            an environmental issue.
+        </p>
+
+        <a href="report.html" class="primary-btn">
+            Report an Issue
+        </a>
+
+    </section>
+
+
+</main>
+
+
+
+<footer>
+
+    <p>
+        © 2026 AirTrace AI | Climate Intelligence Platform
+    </p>
+
+</footer>
+
+
+
+<!-- Leaflet JS -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script src="js/map.js"></script>
+
+
+</body>
+
+</html>
