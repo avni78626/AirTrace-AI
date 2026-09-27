@@ -1,4 +1,3 @@
-
 CITY_DATA = {
     "Delhi": {
         "pm25": 78,
@@ -62,3 +61,30 @@ def get_air_quality(city: str):
         "humidity": city_data["humidity"],
         "risk": risk
     }
+
+
+def get_hotspots():
+    hotspots = []
+
+    for city, data in CITY_DATA.items():
+
+        pm25 = data["pm25"]
+
+        if pm25 >= 75:
+            risk = "VERY HIGH"
+        elif pm25 >= 50:
+            risk = "HIGH"
+        elif pm25 >= 35:
+            risk = "MODERATE"
+        else:
+            risk = "LOW"
+
+        if risk in ["VERY HIGH", "HIGH"]:
+            hotspots.append({
+                "city": city,
+                "pm25": pm25,
+                "pm10": data["pm10"],
+                "risk": risk
+            })
+
+    return hotspots

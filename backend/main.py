@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from services.climate import get_air_quality
+from services.climate import get_air_quality, get_hotspots
 
 app = FastAPI(
     title="AirTrace AI",
@@ -52,3 +52,15 @@ def air_quality(city: str):
         }
 
     return result
+
+
+# -----------------------------------
+# POLLUTION HOTSPOTS
+# -----------------------------------
+
+@app.get("/api/hotspots")
+def hotspots():
+
+    return {
+        "hotspots": get_hotspots()
+    }
