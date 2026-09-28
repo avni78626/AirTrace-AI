@@ -8,9 +8,9 @@ from google import genai
 from models import CitizenReport
 
 
-# -----------------------------------
-# LOAD ENVIRONMENT VARIABLES
-# -----------------------------------
+# =========================
+# ENVIRONMENT CONFIGURATION
+# =========================
 
 load_dotenv()
 
@@ -19,12 +19,19 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY is not configured in .env")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+
+# =========================
+# GEMINI CLIENT
+# =========================
+
+client = genai.Client(
+    api_key=GEMINI_API_KEY
+)
 
 
-# -----------------------------------
+# =========================
 # FASTAPI APPLICATION
-# -----------------------------------
+# =========================
 
 app = FastAPI(
     title="AirTrace AI",
@@ -33,31 +40,33 @@ app = FastAPI(
 )
 
 
-# -----------------------------------
+# =========================
 # HOME
-# -----------------------------------
+# =========================
 
 @app.get("/")
 def home():
+
     return {
         "message": "AirTrace AI backend is running"
     }
 
 
-# -----------------------------------
+# =========================
 # HEALTH CHECK
-# -----------------------------------
+# =========================
 
 @app.get("/health")
 def health():
+
     return {
         "status": "healthy"
     }
 
 
-# -----------------------------------
-# AIR QUALITY BY CITY
-# -----------------------------------
+# =========================
+# AIR QUALITY
+# =========================
 
 @app.get("/api/air-quality/{city}")
 def air_quality(city: str):
@@ -65,6 +74,7 @@ def air_quality(city: str):
     result = get_air_quality(city)
 
     if result is None:
+
         return {
             "error": "City not found",
             "available_cities": [
@@ -79,9 +89,9 @@ def air_quality(city: str):
     return result
 
 
-# -----------------------------------
+# =========================
 # POLLUTION HOTSPOTS
-# -----------------------------------
+# =========================
 
 @app.get("/api/hotspots")
 def hotspots():
@@ -91,9 +101,9 @@ def hotspots():
     }
 
 
-# -----------------------------------
-# AIR QUALITY SPIKE PREDICTION
-# -----------------------------------
+# =========================
+# AIR QUALITY PREDICTION
+# =========================
 
 @app.get("/api/prediction/{city}")
 def prediction(city: str):
@@ -101,6 +111,7 @@ def prediction(city: str):
     result = get_air_quality(city)
 
     if result is None:
+
         return {
             "error": "City not found",
             "available_cities": [
@@ -118,7 +129,6 @@ def prediction(city: str):
 
     risk_score = 0
 
-    # PM2.5 contribution
     if pm25 >= 75:
         risk_score += 50
     elif pm25 >= 50:
@@ -126,39 +136,51 @@ def prediction(city: str):
     else:
         risk_score += 10
 
-    # Temperature contribution
     if temperature >= 35:
         risk_score += 20
     elif temperature >= 30:
         risk_score += 10
 
-    # Humidity contribution
     if humidity < 45:
         risk_score += 10
 
-    # Prediction category
     if risk_score >= 60:
-        prediction_result = "HIGH POSSIBILITY OF AIR QUALITY SPIKE"
+
+        prediction_result = (
+            "HIGH POSSIBILITY OF AIR QUALITY SPIKE"
+        )
 
     elif risk_score >= 35:
-        prediction_result = "MODERATE POSSIBILITY OF AIR QUALITY SPIKE"
+
+        prediction_result = (
+            "MODERATE POSSIBILITY OF AIR QUALITY SPIKE"
+        )
 
     else:
-        prediction_result = "LOW POSSIBILITY OF AIR QUALITY SPIKE"
+
+        prediction_result = (
+            "LOW POSSIBILITY OF AIR QUALITY SPIKE"
+        )
 
     return {
+
         "city": city,
+
         "current_pm25": pm25,
+
         "temperature": temperature,
+
         "humidity": humidity,
+
         "risk_score": risk_score,
+
         "prediction": prediction_result
     }
 
 
-# -----------------------------------
-# GOOGLE GEMINI AI ANALYSIS
-# -----------------------------------
+# =========================
+# GEMINI AIR QUALITY ANALYSIS
+# =========================
 
 @app.get("/api/ai-analysis/{city}")
 def ai_analysis(city: str):
@@ -166,6 +188,7 @@ def ai_analysis(city: str):
     result = get_air_quality(city)
 
     if result is None:
+
         return {
             "error": "City not found",
             "available_cities": [
@@ -190,6 +213,7 @@ Humidity: {result["humidity"]} %
 Give a concise environmental assessment.
 
 Return:
+
 1. Risk assessment
 2. Why the conditions are concerning
 3. One practical intervention for authorities
@@ -214,24 +238,188 @@ Do not invent measurements that were not provided.
 
         return {
             "city": city,
-            "error": "Gemini AI analysis failed",
+            "air_quality": result,
+            "error": "Gemini AI analysis temporarily unavailable",
             "details": str(e)
         }
 
 
-# -----------------------------------
+# =========================
 # CITIZEN POLLUTION REPORT
-# -----------------------------------
+# =========================
 
 @app.post("/api/citizen-report")
 def citizen_report(report: CitizenReport):
 
-    return {
-        "message": "Citizen pollution report received",
-        "report": {
-            "city": report.city,
-            "description": report.description,
-            "latitude": report.latitude,
-            "longitude": report.longitude
+    prompt = f"""
+You are the environmental intelligence engine for AirTrace AI.
+
+A citizen has submitted the following pollution report:
+
+City: {report.city}
+
+Description:
+{report.description}
+
+Latitude:
+{report.latitude}
+
+Longitude:
+{report.longitude}
+
+Analyze this citizen report.
+
+Return:
+
+1. Pollution type
+2. Severity: LOW, MODERATE, HIGH, or VERY HIGH
+3. Possible pollution source
+4. Environmental explanation
+5. Recommended action for local authorities
+
+Important instructions:
+
+- Base your analysis only on the information provided.
+- Clearly state when something is uncertain.
+- Do not invent sensor measurements.
+- Do not invent satellite observations.
+- Do not claim that a pollution source is confirmed.
+- Keep the response concise and practical.
+"""
+
+    try:
+
+        response = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=prompt
+        )
+
+        return {
+
+            "message": "Citizen pollution report analyzed successfully",
+
+            "analysis_source": "Gemini AI",
+
+            "report": {
+
+                "city": report.city,
+
+                "description": report.description,
+
+                "latitude": report.latitude,
+
+                "longitude": report.longitude
+            },
+
+            "ai_analysis": response.text
         }
-    }
+
+    except Exception:
+
+        # =========================
+        # LOCAL FALLBACK ANALYSIS
+        # =========================
+
+        description = report.description.lower()
+
+        if any(word in description for word in [
+            "smoke",
+            "burning",
+            "fire",
+            "burn"
+        ]):
+
+            pollution_type = "Smoke / combustion-related pollution"
+
+        elif any(word in description for word in [
+            "dust",
+            "construction",
+            "road"
+        ]):
+
+            pollution_type = "Dust / particulate pollution"
+
+        elif any(word in description for word in [
+            "chemical",
+            "gas",
+            "industrial",
+            "factory"
+        ]):
+
+            pollution_type = "Possible industrial pollution"
+
+        else:
+
+            pollution_type = "Unknown pollution type"
+
+
+        if any(word in description for word in [
+            "heavy",
+            "thick",
+            "severe",
+            "strong"
+        ]):
+
+            severity = "HIGH"
+
+        elif any(word in description for word in [
+            "smoke",
+            "burning",
+            "bad",
+            "strong smell"
+        ]):
+
+            severity = "MODERATE"
+
+        else:
+
+            severity = "LOW"
+
+
+        return {
+
+            "message": (
+                "Citizen pollution report received "
+                "and analyzed using fallback intelligence"
+            ),
+
+            "analysis_source": "AirTrace local fallback",
+
+            "report": {
+
+                "city": report.city,
+
+                "description": report.description,
+
+                "latitude": report.latitude,
+
+                "longitude": report.longitude
+            },
+
+            "ai_analysis": {
+
+                "pollution_type": pollution_type,
+
+                "severity": severity,
+
+                "possible_source": (
+                    "Possible local combustion, industrial, "
+                    "traffic, construction, or other source. "
+                    "Source is not confirmed from the citizen "
+                    "report alone."
+                ),
+
+                "environmental_explanation": (
+                    "The reported observation may indicate "
+                    "localized air pollution. Additional "
+                    "sensor or environmental data would be "
+                    "needed for confirmation."
+                ),
+
+                "recommended_action": (
+                    "Authorities should verify the location "
+                    "using local air-quality measurements and "
+                    "field inspection before taking targeted action."
+                )
+            }
+        }
