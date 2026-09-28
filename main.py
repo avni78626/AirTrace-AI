@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
+from models import CitizenReport
+
 
 # -----------------------------------
 # LOAD ENVIRONMENT VARIABLES
@@ -114,7 +116,6 @@ def prediction(city: str):
     humidity = result["humidity"]
     temperature = result["temperature"]
 
-    # Prototype prediction score
     risk_score = 0
 
     # PM2.5 contribution
@@ -216,3 +217,21 @@ Do not invent measurements that were not provided.
             "error": "Gemini AI analysis failed",
             "details": str(e)
         }
+
+
+# -----------------------------------
+# CITIZEN POLLUTION REPORT
+# -----------------------------------
+
+@app.post("/api/citizen-report")
+def citizen_report(report: CitizenReport):
+
+    return {
+        "message": "Citizen pollution report received",
+        "report": {
+            "city": report.city,
+            "description": report.description,
+            "latitude": report.latitude,
+            "longitude": report.longitude
+        }
+    }
