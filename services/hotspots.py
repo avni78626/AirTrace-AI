@@ -1,14 +1,14 @@
 from services.climate import get_air_quality
 
 
-# Temporary in-memory storage
+# Temporary storage.
 # Later we will replace this with a database.
 CITIZEN_REPORTS = []
 
 
 def add_citizen_report(report):
     """
-    Store a citizen pollution report temporarily.
+    Store a citizen pollution report.
     """
 
     CITIZEN_REPORTS.append(report)
@@ -18,23 +18,51 @@ def add_citizen_report(report):
 
 def get_citizen_reports():
     """
-    Return all citizen reports.
+    Return all citizen pollution reports.
     """
 
     return CITIZEN_REPORTS
 
 
+def determine_report_risk(description):
+    """
+    Estimate risk from the citizen's description.
+    This is a prototype rule-based signal.
+    """
+
+    description = description.lower()
+
+    if any(word in description for word in [
+        "heavy",
+        "thick",
+        "severe",
+        "large fire",
+        "strong smoke"
+    ]):
+        return "HIGH"
+
+    if any(word in description for word in [
+        "smoke",
+        "burning",
+        "fire",
+        "dust",
+        "chemical",
+        "gas",
+        "industrial",
+        "factory"
+    ]):
+        return "MODERATE"
+
+    return "LOW"
+
+
 def calculate_hotspot_intelligence():
     """
-    Combine environmental data and citizen reports
+    Combine environmental data and citizen observations
     to identify potential pollution hotspots.
     """
 
     hotspots = []
-
-    # ==========================================
-    # PART 1: ENVIRONMENTAL HOTSPOTS
-    # ==========================================
 
     cities = [
         "Delhi",
@@ -43,6 +71,10 @@ def calculate_hotspot_intelligence():
         "Bengaluru",
         "Hyderabad"
     ]
+
+    # ==========================================
+    # ENVIRONMENTAL SIGNALS
+    # ==========================================
 
     for city in cities:
 
@@ -53,25 +85,18 @@ def calculate_hotspot_intelligence():
 
         pm25 = air_data["pm25"]
 
-        # Environmental risk
         if pm25 >= 75:
-
             environmental_risk = "VERY HIGH"
 
         elif pm25 >= 50:
-
             environmental_risk = "HIGH"
 
         elif pm25 >= 35:
-
             environmental_risk = "MODERATE"
 
         else:
-
             environmental_risk = "LOW"
 
-
-        # Only consider moderate or higher risk
         if environmental_risk in [
             "VERY HIGH",
             "HIGH",
@@ -104,18 +129,20 @@ def calculate_hotspot_intelligence():
                 )
             })
 
-
     # ==========================================
-    # PART 2: CITIZEN REPORT INTELLIGENCE
+    # CITIZEN SIGNALS
     # ==========================================
 
     for report in CITIZEN_REPORTS:
 
         city = report["city"]
 
-        description = report["description"].lower()
+        description = report["description"]
 
-        # Find existing hotspot for this city
+        citizen_risk = determine_report_risk(
+            description
+        )
+
         existing_hotspot = None
 
         for hotspot in hotspots:
@@ -126,52 +153,30 @@ def calculate_hotspot_intelligence():
 
                 break
 
-
         # ======================================
-        # DETERMINE CITIZEN REPORT SEVERITY
-        # ======================================
-
-        if any(word in description for word in [
-            "heavy",
-            "thick",
-            "severe",
-            "strong smoke",
-            "large fire"
-        ]):
-
-            citizen_risk = "HIGH"
-
-        elif any(word in description for word in [
-            "smoke",
-            "burning",
-            "fire",
-            "dust",
-            "chemical",
-            "gas",
-            "industrial",
-            "factory"
-        ]):
-
-            citizen_risk = "MODERATE"
-
-        else:
-
-            citizen_risk = "LOW"
-
-
-        # ======================================
-        # ADD TO EXISTING HOTSPOT
+        # EXISTING ENVIRONMENTAL HOTSPOT
         # ======================================
 
         if existing_hotspot:
 
             existing_hotspot["citizen_reports"] += 1
 
+            # Use the citizen location
+            # if this is the first citizen report.
+            if existing_hotspot["latitude"] is None:
+
+                existing_hotspot["latitude"] = report[
+                    "latitude"
+                ]
+
+                existing_hotspot["longitude"] = report[
+                    "longitude"
+                ]
+
             existing_hotspot["evidence"].append(
-                f"Citizen report: {report['description']}"
+                f"Citizen report: {description}"
             )
 
-            # Increase risk if citizen report is serious
             if citizen_risk == "HIGH":
 
                 existing_hotspot["risk"] = "VERY HIGH"
@@ -183,9 +188,18 @@ def calculate_hotspot_intelligence():
 
                 existing_hotspot["risk"] = "MODERATE"
 
+            existing_hotspot["source"] = (
+                "Environmental data + Citizen observations"
+            )
+
+            existing_hotspot["recommended_action"] = (
+                "Prioritize verification of this location "
+                "using local air-quality measurements and "
+                "field inspection."
+            )
 
         # ======================================
-        # CREATE NEW CITIZEN HOTSPOT
+        # NEW CITIZEN HOTSPOT
         # ======================================
 
         else:
@@ -205,39 +219,49 @@ def calculate_hotspot_intelligence():
                 "citizen_reports": 1,
 
                 "evidence": [
-                    f"Citizen report: {report['description']}"
+                    f"Citizen report: {description}"
                 ],
 
                 "source": "Citizen observation",
 
                 "recommended_action": (
                     "Verify the reported location using "
-                    "local environmental measurements "
-                    "and field inspection."
+                    "local air-quality measurements and "
+                    "field inspection."
                 )
             })
 
-
-    # ==========================================
-    # PART 3: FINAL INTELLIGENCE
-    # ==========================================
-
-    for hotspot in hotspots:
-
-        if (
-            hotspot["citizen_reports"] > 0
-            and hotspot["pm25"] is not None
-        ):
-
-            hotspot["source"] = (
-                "Environmental data + Citizen observations"
-            )
-
-            hotspot["recommended_action"] = (
-                "Prioritize verification of this location "
-                "using local air-quality measurements and "
-                "field inspection."
-            )
-
-
     return hotspots
+
+
+def get_map_hotspots():
+    """
+    Return geographic hotspot points designed
+    for direct frontend map visualization.
+    """
+
+    map_points = []
+
+    for report in CITIZEN_REPORTS:
+
+        risk = determine_report_risk(
+            report["description"]
+        )
+
+        map_points.append({
+
+            "city": report["city"],
+
+            "latitude": report["latitude"],
+
+            "longitude": report["longitude"],
+
+            "risk": risk,
+
+            "description": report["description"],
+
+            "source": "Citizen observation"
+
+        })
+
+    return map_points
